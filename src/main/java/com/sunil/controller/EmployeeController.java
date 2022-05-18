@@ -5,6 +5,8 @@ import com.sunil.model.SequenceGeneratorService;
 import com.sunil.repository.EmployeeRepository;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.support.Acknowledgment;
@@ -19,11 +21,11 @@ public class EmployeeController {
 	SequenceGeneratorService sequenceGeneratorService;
 
 
-	@RequestMapping(value = "/post", method = RequestMethod.POST, consumes = "application/json", produces = "application/json")
-	public Employee saveEmployee(@RequestBody Employee employee) {
+	@PostMapping(value = "/post",consumes= { MediaType.APPLICATION_JSON_VALUE},produces = {MediaType.APPLICATION_JSON_VALUE})
+	public ResponseEntity saveEmployee(@RequestBody Employee employee) {
 		employee.setId(sequenceGeneratorService.generateSequence(Employee.SEQUENCE_NAME));
 		Employee emp = repository.save(employee);
-		return emp;
+		return ResponseEntity.status(HttpStatus.CREATED).body(emp);
 	}
 
 	@GetMapping("/getEmployee")
@@ -31,17 +33,16 @@ public class EmployeeController {
 		return ResponseEntity.ok(this.repository.findAll());
 	}
 
-	@RequestMapping(value = "/edit/{id}", produces = "application/json", method = RequestMethod.GET)
-	public Employee editEmployee(@PathVariable(name = "id") long id) {
+	@GetMapping(value = "/edit/{id}",consumes= { MediaType.APPLICATION_JSON_VALUE},produces = {MediaType.APPLICATION_JSON_VALUE})
+	public ResponseEntity editEmployee(@PathVariable(name = "id") long id) {
 		Employee employee = repository.findById(id);
-		System.out.println(employee);
-		return employee;
+		return ResponseEntity.status(HttpStatus.OK).body(employee);
 	}
 
-	@RequestMapping(value = "/update", method = RequestMethod.POST, consumes = "application/json", produces = "application/json")
-	public Employee updateEmployee(@RequestBody Employee employee) {
+	@PutMapping(value = "/update",consumes= { MediaType.APPLICATION_JSON_VALUE},produces = {MediaType.APPLICATION_JSON_VALUE})
+	public ResponseEntity updateEmployee(@RequestBody Employee employee) {
 		Employee emp = repository.save(employee);
-		return emp;
+		return ResponseEntity.status(HttpStatus.CREATED).body(emp);
 	}
 
 	@RequestMapping({ "/hello" })
